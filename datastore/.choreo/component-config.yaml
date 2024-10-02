@@ -1,0 +1,9 @@
+apiVersion: core.choreo.dev/v1beta1
+kind: ComponentConfig
+spec:
+    inbound:
+        - name: mongodb
+          port: 27017
+          type: TCP
+          networkVisibility: Project
+          context: /
