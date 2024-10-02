@@ -1,0 +1,2 @@
+FROM isamauny/pixidb:1.0
+CMD ["mongod", "--quiet", "--bind_ip_all", "--auth"]
