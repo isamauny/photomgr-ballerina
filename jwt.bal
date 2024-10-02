@@ -3,7 +3,7 @@ import ballerina/jwt;
 
 configurable string path_to_pk = "app/keys/private.key";
 
-function issueJWT(FullUserRegistrationData userData) returns string|error {
+isolated function issueJWT(FullUserRegistrationData userData) returns string|error {
     // This JWT is NOT secure, as we are taking the full user item and pushing it in the
     // JWT payload. 
 

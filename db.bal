@@ -9,7 +9,15 @@ type RegistrationFailed record {|
 |};
 
 # Reusable functions
-public function registerUser(mongodb:Database usersDb, UserRegistrationData user) returns registerResponse|RegistrationFailed|error {
+#
+# Register User
+# + usersDb - database object 
+# + user - JSON Structure with user data 
+# + return - returns can be any of following types 
+# registerResponse - JSON structure to return to user
+# registrationFailed - JSON error to return to user
+# error - Database error
+isolated function registerUser(mongodb:Database usersDb, UserRegistrationData user) returns registerResponse|RegistrationFailed|error {
 
     // Does user exist ? 
     UsersItem|error response = findUser(usersDb, user.user);
@@ -49,7 +57,7 @@ isolated function findUser(mongodb:Database usersDb, string email) returns Users
     }
 }
 
-function createUser(mongodb:Database usersDb, UserRegistrationData userData) returns registerResponse|error {
+isolated function createUser(mongodb:Database usersDb, UserRegistrationData userData) returns registerResponse|error {
     mongodb:Collection users = check usersDb->getCollection("users");
     string user_id = uuid:createType1AsString();
     string onboarding_date = time:utcToString(time:utcNow());
