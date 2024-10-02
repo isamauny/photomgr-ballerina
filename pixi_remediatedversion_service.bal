@@ -4,13 +4,14 @@
 import ballerina/http;
 import ballerinax/mongodb;
 import ballerina/io;
+import ballerina/uuid;
 
 configurable string host = "localhost";
 configurable int port = 27017;
 
-// configurable string username = ?;
-// configurable string password = ?;
-configurable string db_name = "Pixidb";
+configurable string username = ?;
+configurable string password = ?;
+configurable string db_name = ?;
 
 final mongodb:Client db_connection = check new ({
     connection: {
@@ -19,10 +20,10 @@ final mongodb:Client db_connection = check new ({
             port: port
         },
         auth: <mongodb:ScramSha256AuthCredential>{
-            username: "pixiuser",
-            password: "devuserXXX",
+            username: username,
+            password: password,
             database: db_name
-        }
+        }   
     }
 });
 
@@ -34,8 +35,10 @@ service /api/pixi on main_endpoint {
     private final mongodb:Database usersDb;
 
     function init() returns error? {
-        self.usersDb = check db_connection->getDatabase("Pixidb");
-        io:println ("Connection to Mongo DB established...");
+        // Initialize connection to Mongo database. 
+        // This code assumes MongoDB is running with auth ON.
+        self.usersDb = check db_connection->getDatabase(db_name);
+        io:println ("Connection to database established...");
     }
     
     // # Delete User
@@ -112,18 +115,19 @@ service /api/pixi on main_endpoint {
     // }
 
     # register for an account
-    #
-    # + return - returns can be any of following types 
-    # http:Ok (successfully registered, token received)
-    # http:Accepted (email address already registered)
-    # http:Response (unexpected error)
-    resource function post user/register(@http:Payload UserRegistrationData payload) returns AcceptedErrorMessage|http:Response| BadContentMessage{
+    # + return - http:Ok (successfully registered, token received)
+    # + return - http:BadRequest (email address already registered)
+    # + return - http:Response (unexpected error)
+    isolated resource function post user/register(@http:Payload UserRegistrationData payload) returns AcceptedErrorMessage|http:Response| BadContentMessage{
+        string transaction_id = uuid:createType4AsString();
+
         registerResponse|RegistrationFailed|error createResponse = registerUser(self.usersDb, payload);
         http:Response response = new http:Response ();
 
+
         if createResponse is RegistrationFailed {
             response.statusCode = 400;
-            response.setHeader("x-transaction-id", "bleuh") ;
+            response.setHeader("x-transaction-id", transaction_id) ;
             response.setJsonPayload(createResponse, "application/json");
 
             return response;
@@ -131,7 +135,7 @@ service /api/pixi on main_endpoint {
 
         else if createResponse is registerResponse {
             response.statusCode = 201;
-            response.setHeader("x-transaction-id", "blah") ;
+            response.setHeader("x-transaction-id", transaction_id) ;
             response.setJsonPayload(createResponse, "application/json");
 
             return response;
