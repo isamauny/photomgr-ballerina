@@ -2,7 +2,7 @@
 org = "apiscoach"
 name = "pixi"
 version = "0.1.0"
-distribution = "2201.10.11"
+distribution = "2201.10.1"
 
 [build-options]
 observabilityIncluded = true
