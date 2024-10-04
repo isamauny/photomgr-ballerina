@@ -6,4 +6,3 @@ spec:
           port: 27017
           type: TCP
           networkVisibility: Project
-          context: /
