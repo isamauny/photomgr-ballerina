@@ -1,4 +1,4 @@
-FROM mongo:5.0
+FROM amd64/mongo:5.0
 
 # Set environment variables for MongoDB root user
 ENV MONGO_INITDB_ROOT_USERNAME=root
@@ -18,7 +18,8 @@ RUN apt-get install -y mongodb-mongosh
 ADD  --chown=mongodb:mongodb ./Pixi44Dump.tar /backup
 
 # Switch to non-root user
-USER mongodb
+# Use numeric ID for Choreo security tests 
+USER 999
 
 COPY --chown=mongodb:mongodb pixi_setup.sh /docker-entrypoint-initdb.d
 RUN chmod +x /docker-entrypoint-initdb.d/pixi_setup.sh
